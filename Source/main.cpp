@@ -28,7 +28,7 @@ bool do_it(Grid & grid, const size_t & line, const size_t & column)
 {
     if (grid[line][column] != 0)
     {
-        std::cout << std ::endl << "CHECKING : [" << line << "][" << column << "] : " << grid[line][column] << std::endl;
+        std::cout << std ::endl << "CHECKING [" << line << "][" << column << "] : " << grid[line][column] << std::endl;
         if (check_lines(grid, line, column) ||
             check_columns(grid, line, column))
             return true;
@@ -51,7 +51,6 @@ void checker(Grid & grid)
         {
             if (do_it(grid, line, column) == true)
             {
-                /*std::cout << "Here we go again ..." << std::endl;*/
                 printer(grid);
                 std::cout << std::endl;
                 line = 0;
@@ -92,7 +91,7 @@ int main()
         { 0,0,0, 2,3,7, 4,0,0 },
         { 0,0,0, 4,0,0, 9,0,0 }*/
 
-        // HARD
+        /* // HARD
         { 0,0,7, 0,5,3, 0,0,0 },
         { 0,0,4, 0,0,9, 0,2,5 },
         { 0,3,0, 0,4,0, 0,0,6 },
@@ -103,7 +102,33 @@ int main()
 
         { 8,0,0, 0,6,0, 0,1,0 },
         { 1,7,0, 9,0,0, 4,0,0 },
-        { 0,0,0, 5,1,0, 6,0,0 }
+        { 0,0,0, 5,1,0, 6,0,0 }*/
+
+        // VERY HARD
+        { 0,0,0, 2,0,0, 3,0,0 },
+        { 0,0,0, 3,0,0, 0,5,7 },
+        { 0,9,8, 5,0,0, 0,0,0 },
+
+        { 0,3,0, 0,6,0, 4,0,5 },
+        { 8,0,0, 0,0,0, 0,0,6 },
+        { 6,0,2, 0,1,0, 0,7,0 },
+
+        { 0,0,0, 0,0,5, 9,1,0 },
+        { 5,1,0, 0,0,9, 0,0,0 },
+        { 0,0,3, 0,0,4, 0,0,0 }
+
+        // EXTREME
+        /*{ 0,9,0, 0,0,0, 1,0,2 },
+        { 0,0,8, 0,0,0, 0,0,0 },
+        { 4,0,0, 9,0,1, 0,0,3 },
+
+        { 0,2,0, 0,5,0, 6,0,0 },
+        { 0,0,6, 0,1,0, 4,0,0 },
+        { 0,0,1, 0,6,0, 0,9,0 },
+
+        { 5,0,0, 2,0,7, 0,0,6 },
+        { 0,0,0, 0,0,0, 5,0,0 },
+        { 3,0,7, 0,0,0, 0,4,0 }*/
     };
 
     printer(grid);

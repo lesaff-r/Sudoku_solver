@@ -254,7 +254,7 @@ bool    check_columns(Grid & grid, const size_t & line, const size_t & column)
     // COLUMN Number found      COLUMN To check     COLUMN To check
     if (COLUMN == 1)
     {
-        std::cout << "In COLUMN Case 1" << std::endl;
+        //std::cout << "In COLUMN Case 1" << std::endl;
 
         // Checking for the number in other columns
         if (int row = check_number_in_column(grid, column + 1, grid[line][column])) {
@@ -284,7 +284,7 @@ bool    check_columns(Grid & grid, const size_t & line, const size_t & column)
     // COLUMN To check      COLUMN Number found     COLUMN To check
     else if (COLUMN == 2)
     {
-       std::cout << "In COLUMN Case 2" << std::endl;
+       //std::cout << "In COLUMN Case 2" << std::endl;
 
        // Checking for the number in other columns
         if (int row = check_number_in_column(grid, column - 1, grid[line][column])) {
@@ -314,7 +314,7 @@ bool    check_columns(Grid & grid, const size_t & line, const size_t & column)
     // COLUMN To check      COLUMN To check     COLUMN Number found
     else if (COLUMN == 0)
     {
-        std::cout << "In COLUMN Case 3 : " << line << ";" << column << std::endl;
+        //std::cout << "In COLUMN Case 3 : " << line << ";" << column << std::endl;
 
         // Checking for the number in other columns
         if (int row = check_number_in_column(grid, column - 1, grid[line][column])) {
@@ -347,7 +347,8 @@ bool    check_columns(Grid & grid, const size_t & line, const size_t & column)
 
 }
 
-bool try_to_fill_column(Grid & grid, const size_t column,
+
+bool try_to_fill_2blank_column(Grid & grid, const size_t column,
     const std::vector<int> & missing_numbers,
     const std::vector<size_t> & blank_lines)
 {
@@ -368,6 +369,61 @@ bool try_to_fill_column(Grid & grid, const size_t column,
             grid[blank_line_one][column] = missing_number;
             return true;
         }
+    }
+
+    return false;
+}
+
+bool try_to_fill_3blank_column(Grid & grid, const size_t column,
+    const std::vector<int> & missing_numbers,
+    const std::vector<size_t> & blank_lines)
+{
+    for (auto & it = blank_lines.begin();
+        it != blank_lines.end();
+        ++it)
+    {
+        // We will emplace the times a missing number is found at this number (-1) location
+        std::vector<size_t>     found_numbers = { 0,0,0,0,0,0,0,0,0 };
+
+        // We are checking every blank line 
+        for (auto & blank_line = blank_lines.begin();
+            blank_line != blank_lines.end();
+            ++blank_line)
+        {
+            if (blank_line != it)
+            {
+                // For every missing number
+                for (auto & missing_number : missing_numbers)
+                {
+                    if (check_line_for_number(grid, *blank_line, missing_number))
+                        found_numbers[missing_number - 1]++;
+                }
+            }
+
+
+        }
+
+        // Did we find a missing number enough times
+        for (auto & found_number = found_numbers.begin();
+            found_number != found_numbers.end();
+            ++found_number)
+        {
+            if (*found_number == missing_numbers.size() - 1)
+            {
+                size_t number_to_fill = std::distance(found_numbers.begin(), found_number);
+
+                std::cout << "|||!||| Filled line " << *it << " column " << column << " with : " << number_to_fill + 1 << std::endl << std::endl;
+                grid[*it][column] = number_to_fill + 1;
+
+                return true;
+            }
+
+        }
+
+        // Reseting
+        for (auto & found_number : found_numbers)
+            found_number = 0;
+
     }
 
     return false;
@@ -403,7 +459,13 @@ bool can_fill_column(Grid & grid, const size_t column)
         return true;
     }
     else if (missing_numbers.size() == 2)
-        return try_to_fill_column(grid, column, missing_numbers, blank_lines);
+    {
+        return try_to_fill_2blank_column(grid, column, missing_numbers, blank_lines);
+    }
+    else if (missing_numbers.size() == 3)
+    {
+        return try_to_fill_3blank_column(grid, column, missing_numbers, blank_lines);
+    }
 
     return false;
 }

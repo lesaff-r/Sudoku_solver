@@ -40,7 +40,7 @@ bool try_to_fill_number_in_1st_row_of_line(Grid & grid, const size_t line_to_fil
     if (!has_number && number_of_blank == 1)
     {
         grid[line_to_fill][cell_to_fill] = number_to_fill;
-        std::cout << "//!// Filled 1st row of line in column [" << cell_to_fill << "] with " << number_to_fill << std::endl << std::endl;
+        std::cout << "//!// Filled 1st row of line " << line_to_fill << " in column [" << cell_to_fill << "] with " << number_to_fill << std::endl << std::endl;
 
         return true;
     }
@@ -80,7 +80,7 @@ bool try_to_fill_number_in_2nd_row_of_line(Grid & grid, const size_t line_to_fil
     if (!has_number && number_of_blank == 1)
     {
         grid[line_to_fill][cell_to_fill] = number_to_fill;
-        std::cout << "//!// Filled 2nd row of line in column [" << cell_to_fill << "] with " << number_to_fill << std::endl << std::endl;
+        std::cout << "//!// Filled 2nd row of line " << line_to_fill << " in column [" << cell_to_fill << "] with " << number_to_fill << std::endl << std::endl;
 
         return true;
     }
@@ -120,7 +120,7 @@ bool try_to_fill_number_in_3rd_row_of_line(Grid & grid, const size_t line_to_fil
     if (!has_number && number_of_blank == 1)
     {
         grid[line_to_fill][cell_to_fill] = number_to_fill;
-        std::cout << "//!// Filled 3rd row of line in column [" << cell_to_fill << "] with " << number_to_fill << std::endl << std::endl;
+        std::cout << "//!// Filled 3rd row of line " << line_to_fill << " in column [" << cell_to_fill << "] with " << number_to_fill << std::endl << std::endl;
 
         return true;
     }
@@ -268,7 +268,7 @@ bool check_lines(Grid & grid, const size_t & line, const size_t & column)
     // LINE To check
     else if (LINE == 2)
     {
-        std::cout << "In LINE Case 2" << std::endl;
+        //std::cout << "In LINE Case 2" << std::endl;
 
         // Checking for the number in other lines
         if (int row = check_number_in_line(grid, line - 1, grid[line][column])) {
@@ -300,25 +300,25 @@ bool check_lines(Grid & grid, const size_t & line, const size_t & column)
     // LINE Number found
     else if (LINE == 0)
     {
-        std::cout << "In LINE Case 3" << std::endl;
+        //std::cout << "In LINE Case 3" << std::endl;
 
         // Checking for the number in other lines
         if (int row = check_number_in_line(grid, line - 1, grid[line][column])) {
-            std::cout << "Found number " << grid[line][column] << " in 2nd line & row are : " << row_of_cells << "/" << row << std::endl;
+            //std::cout << "Found number " << grid[line][column] << " in 2nd line & row are : " << row_of_cells << "/" << row << std::endl;
             return try_to_fill_number_in_row_of_line(grid, line - 2, grid[line][column], row_of_cells, row);
         }
         if (int row = check_number_in_line(grid, line - 2, grid[line][column])) {
-            std::cout << "Found number " << grid[line][column] << " in 1st line & row are : " << row_of_cells << "/" << row << std::endl;
+            //std::cout << "Found number " << grid[line][column] << " in 1st line & row are : " << row_of_cells << "/" << row << std::endl;
             return try_to_fill_number_in_row_of_line(grid, line - 1, grid[line][column], row_of_cells, row);
         }
 
         // Checking for full rows in other lines
         if (int row = check_full_rows_in_line(grid, line - 1, row_of_cells, grid[line][column])) {
-            std::cout << "Found full row in 2nd line & rows are : " << row_of_cells << "/" << row << std::endl;
+            //std::cout << "Found full row in 2nd line & rows are : " << row_of_cells << "/" << row << std::endl;
             return try_to_fill_number_in_row_of_line(grid, line - 1, grid[line][column], row_of_cells, row);
         }
         if (int row = check_full_rows_in_line(grid, line - 2, row_of_cells, grid[line][column])) {
-            std::cout << "Found full row in 1st line & rows are : " << row_of_cells << "/" << row << std::endl;
+            //std::cout << "Found full row in 1st line & rows are : " << row_of_cells << "/" << row << std::endl;
             return try_to_fill_number_in_row_of_line(grid, line - 2, grid[line][column], row_of_cells, row);
         }
 
@@ -333,7 +333,7 @@ bool check_lines(Grid & grid, const size_t & line, const size_t & column)
 }
 
 
-bool try_to_fill_line(Grid & grid, const size_t line,
+bool try_to_fill_2blank_line(Grid & grid, const size_t line,
     const std::vector<int> & missing_numbers,
     const std::vector<size_t> & blank_columns)
 {
@@ -356,6 +356,60 @@ bool try_to_fill_line(Grid & grid, const size_t line,
         }
     }
             
+    return false;
+}
+
+bool try_to_fill_3blank_line(Grid & grid, const size_t line,
+    const std::vector<int> & missing_numbers,
+    const std::vector<size_t> & blank_columns)
+{
+    for (auto & it = blank_columns.begin() ;
+        it != blank_columns.end();
+        ++it)
+    {
+        // We will emplace the times a missing number is found at this number (-1) location
+        std::vector<size_t>     found_numbers = { 0,0,0,0,0,0,0,0,0 };
+
+        // We are checking every blank column 
+        for (auto & blank_column = blank_columns.begin();
+            blank_column != blank_columns.end();
+            ++blank_column)
+        {
+            if (blank_column != it)
+            {
+                // For every missing number
+                for (auto & missing_number : missing_numbers)
+                {
+                    if (check_column_for_number(grid, *blank_column, missing_number))
+                        found_numbers[missing_number - 1]++;
+                }
+            }
+
+            
+        }
+
+        // Did we find a missing number enough times
+        for (auto & found_number = found_numbers.begin();
+            found_number != found_numbers.end();
+            ++found_number)
+        {
+            if (*found_number == missing_numbers.size() - 1)
+            {
+                size_t number_to_fill = std::distance(found_numbers.begin(), found_number);
+
+                std::cout << "---!--- Filled line " << line << " column " << *it << " with : " << number_to_fill + 1 << std::endl << std::endl;
+                grid[line][*it] = number_to_fill + 1;
+
+                return true;
+            }
+
+        }
+
+        // Reseting
+        for (auto & found_number : found_numbers)
+            found_number = 0;
+             
+    }
     return false;
 }
 
@@ -390,6 +444,10 @@ bool can_fill_line(Grid & grid, const size_t line)
     }
     else if (missing_numbers.size() == 2)
     {
+        return try_to_fill_2blank_line(grid, line, missing_numbers, blank_columns);
+    }
+    else if (missing_numbers.size() == 3)
+    {
         /*std::cout << "Missing numbers in line " << line << " : ";
         for (auto & number : missing_numbers)
             std::cout << number << " ";
@@ -400,7 +458,7 @@ bool can_fill_line(Grid & grid, const size_t line)
             std::cout << blank_column << " ";
         std::cout << std::endl;*/
 
-        return try_to_fill_line(grid, line, missing_numbers, blank_columns);
+        return try_to_fill_3blank_line(grid, line, missing_numbers, blank_columns);
     }
 
     return false;
