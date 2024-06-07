@@ -10,6 +10,7 @@ MyWindow::MyWindow(QWidget *parent)
 
     m_grid = std::make_unique<Grid>();
     Populate_TableWidget();
+    m_selected_cell = m_ui->tableWidget->item(0, 0);
 }
 
 MyWindow::~MyWindow()
@@ -47,12 +48,53 @@ MyWindow::Populate_TableWidget()
     }
 }
 
+void
+    MyWindow::Set_CrossCells_color(const QColor color)
+{
+    int line = m_selected_cell->row();
+    int column = m_selected_cell->column();
+
+    for (int cell_in_line = 0 ; cell_in_line < 9 ; ++cell_in_line)
+    {
+        QTableWidgetItem * cell = m_ui->tableWidget->item(cell_in_line, column);
+
+        if (cell->flags() & Qt::ItemIsSelectable)
+            cell->setBackground(QColor(color));
+    }
+    for (int cell_in_column = 0 ; cell_in_column < 9 ; ++cell_in_column)
+    {
+        QTableWidgetItem * cell = m_ui->tableWidget->item(line, cell_in_column);
+
+        if (cell->flags() & Qt::ItemIsSelectable)
+            cell->setBackground(QColor(color));
+    }
+
+}
+
+void
+MyWindow::UnHighlight_cells()
+{
+    Set_CrossCells_color(QColor("white"));
+}
+
+void
+MyWindow::Highlight_cells()
+{
+    Set_CrossCells_color(QColor("light blue"));
+}
+
 
 void MyWindow::on_tableWidget_cellClicked(int row, int column)
 {
     QTableWidgetItem * cell = m_ui->tableWidget->item(row, column);
 
     if (cell->flags() & Qt::ItemIsSelectable)
-        cell->setText(QString::number(row) + ',' + QString::number(column));
+    {
+        UnHighlight_cells();
+        m_selected_cell = cell;
+        Highlight_cells();
+
+    }
+        //cell->setText(QString::number(row) + ',' + QString::number(column));
 }
 
