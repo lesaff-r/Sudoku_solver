@@ -10,7 +10,12 @@ class Grid
 public:
     Grid();
 
-    const Raw_grid & get_grid();
+    const Raw_grid &    get_grid();
+
+    void    set_value_in_cell(const int line, const int column, const int value);
+    bool    Is_number_in_square(const int line, const int column, const int value);
+    bool    Is_number_in_cell(const int line, const int column, const int value);
+
 
 private:
     void Init_grid();

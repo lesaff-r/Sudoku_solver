@@ -26,3 +26,18 @@ const Raw_grid &
 Grid::get_grid() {
     return m_raw_grid;
 }
+
+void
+Grid::set_value_in_cell(const int line, const int column, const int value)
+{
+    m_raw_grid[line][column] = value;
+}
+
+bool
+Grid::Is_number_in_cell(const int line, const int column, const int value)
+{
+    if (m_raw_grid[line][column] == value)
+        return true;
+
+    return false;
+}

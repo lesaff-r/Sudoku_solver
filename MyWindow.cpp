@@ -1,6 +1,8 @@
 #include "MyWindow.h"
 #include "./ui_MyWindow.h"
 
+#include <QTimer>
+
 MyWindow::MyWindow(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::Widget)
@@ -11,6 +13,7 @@ MyWindow::MyWindow(QWidget *parent)
     m_grid = std::make_unique<Grid>();
     Populate_TableWidget();
     m_selected_cell = m_ui->tableWidget->item(0, 0);
+    Highlight_cells();
 }
 
 MyWindow::~MyWindow()
@@ -24,11 +27,11 @@ MyWindow::Populate_TableWidget()
 {
     const Raw_grid & raw_grid = m_grid->get_grid();
 
-    for (int line = 0 ; line < 9 ; ++line)
+    for (int row = 0 ; row < 9 ; ++row)
     {
         for (int column = 0 ; column < 9 ; ++column)
         {
-            QTableWidgetItem * cell = m_ui->tableWidget->item(line, column);
+            QTableWidgetItem * cell = m_ui->tableWidget->item(row, column);
 
             if (cell == nullptr) {
                 cell = new QTableWidgetItem ("");
@@ -36,11 +39,11 @@ MyWindow::Populate_TableWidget()
                 cell->setFlags(cell->flags() ^ Qt::ItemIsEditable);
                 cell->setTextAlignment(Qt::AlignCenter);
 
-                m_ui->tableWidget->setItem(line, column, cell);
+                m_ui->tableWidget->setItem(row, column, cell);
             }
 
-            if (raw_grid[line][column]) {
-                cell->setText(QString::number(raw_grid[line][column]));
+            if (raw_grid[row][column]) {
+                cell->setText(QString::number(raw_grid[row][column]));
                 cell->setFlags(cell->flags() ^ Qt::ItemIsSelectable);
                 cell->setBackground(QColor("light grey"));
             }
@@ -51,24 +54,23 @@ MyWindow::Populate_TableWidget()
 void
     MyWindow::Set_CrossCells_color(const QColor color)
 {
-    int line = m_selected_cell->row();
+    int row = m_selected_cell->row();
     int column = m_selected_cell->column();
 
-    for (int cell_in_line = 0 ; cell_in_line < 9 ; ++cell_in_line)
+    for (int row_check = 0 ; row_check < 9 ; ++row_check)
     {
-        QTableWidgetItem * cell = m_ui->tableWidget->item(cell_in_line, column);
+        QTableWidgetItem * cell = m_ui->tableWidget->item(row_check, column);
 
         if (cell->flags() & Qt::ItemIsSelectable)
             cell->setBackground(QColor(color));
     }
-    for (int cell_in_column = 0 ; cell_in_column < 9 ; ++cell_in_column)
+    for (int column_check = 0 ; column_check < 9 ; ++column_check)
     {
-        QTableWidgetItem * cell = m_ui->tableWidget->item(line, cell_in_column);
+        QTableWidgetItem * cell = m_ui->tableWidget->item(row, column_check);
 
         if (cell->flags() & Qt::ItemIsSelectable)
             cell->setBackground(QColor(color));
     }
-
 }
 
 void
@@ -81,6 +83,14 @@ void
 MyWindow::Highlight_cells()
 {
     Set_CrossCells_color(QColor("light blue"));
+    m_selected_cell->setBackground(QColor("blue"));
+}
+
+
+void
+MyWindow::set_value_in_row_grid(const int row, const int column, const int value)
+{
+    m_grid->set_value_in_cell(row, column, value);
 }
 
 
@@ -95,6 +105,56 @@ void MyWindow::on_tableWidget_cellClicked(int row, int column)
         Highlight_cells();
 
     }
-        //cell->setText(QString::number(row) + ',' + QString::number(column));
+}
+
+
+void
+    MyWindow::Blink_cell_in_red(QTableWidgetItem * cell)
+{
+    QBrush color = cell->background();
+    cell->setBackground(QColor("red"));
+    QTimer::singleShot(1000, [cell, color]{
+        cell->setBackground(color);
+    });
+}
+
+bool
+MyWindow::Can_edit_cell(const int row, const int column, const int value)
+{
+    for (int row_check = 0 ; row_check < 9 ; ++row_check)
+    {
+        if (m_grid->Is_number_in_cell(row_check, column, value))
+        {
+            QTableWidgetItem * cell = m_ui->tableWidget->item(row_check, column);
+
+            Blink_cell_in_red(cell);
+            return false;
+        }
+    }
+    for (int column_check = 0 ; column_check < 9 ; ++column_check)
+    {
+        if (m_grid->Is_number_in_cell(row, column_check, value))
+        {
+            QTableWidgetItem * cell = m_ui->tableWidget->item(row, column_check);
+
+            Blink_cell_in_red(cell);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void MyWindow::on_pushButton_1_clicked()
+{
+    const int row = m_selected_cell->row();
+    const int column = m_selected_cell->column();
+    const QString value = "1";
+
+    if (Can_edit_cell(row, column, value.toInt()))
+    {
+        m_selected_cell->setText(value);
+        set_value_in_row_grid(row, column, value.toInt());
+    }
 }
 
