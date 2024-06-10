@@ -143,6 +143,20 @@ MyWindow::Column_check(const int row, const int value)
 QTableWidgetItem *
 MyWindow::Square_check(const int row, const int column, const int value)
 {
+    int row_check = (row / 3) * 3;
+    int column_check = (column / 3) * 3;
+
+    for (int cell_row_count = 0 ; cell_row_count < 3 ; ++cell_row_count)
+    {
+        for (int cell_column_count = 0 ; cell_column_count < 3 ; ++ cell_column_count)
+        {
+            if (m_grid->Is_number_in_cell(row_check + cell_row_count,
+                                          column_check + cell_column_count,
+                                          value))
+                return m_ui->tableWidget->item(row_check + cell_row_count, column_check + cell_column_count);
+        }
+    }
+
     return nullptr;
 }
 
