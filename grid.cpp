@@ -23,8 +23,18 @@ Grid::Init_grid()
 }
 
 const Raw_grid &
-Grid::get_grid() {
+Grid::get_grid() const {
     return m_raw_grid;
+}
+
+const std::pair<int, int> &
+Grid::get_filled_cell() const {
+    return m_filled_cell;
+}
+
+void
+Grid::set_filled_cell(const std::pair<int, int> & cell) {
+    m_filled_cell = cell;
 }
 
 void
@@ -34,10 +44,22 @@ Grid::set_value_in_cell(const int line, const int column, const int value)
 }
 
 bool
-Grid::Is_number_in_cell(const int line, const int column, const int value)
+Grid::is_number_in_cell(const int line, const int column, const int value) const
 {
     if (m_raw_grid[line][column] == value)
         return true;
 
+    return false;
+}
+
+
+bool
+Grid::is_number_in_column(const int column, const int number) const
+{
+    for (int line_check = 0; line_check < 9; ++line_check)
+    {
+        if (m_raw_grid[line_check][column] == number)
+            return true;
+    }
     return false;
 }

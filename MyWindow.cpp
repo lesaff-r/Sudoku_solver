@@ -10,8 +10,11 @@ MyWindow::MyWindow(QWidget *parent)
     m_ui->setupUi(this);
     this->setWindowTitle("Sudoku");
 
-    m_grid = std::make_unique<Grid>();
+    m_grid = std::make_shared<Grid>();
+    m_solver = std::make_unique<Solver>();
+
     Populate_TableWidget();
+
     m_selected_cell = m_ui->tableWidget->item(0, 0);
     Highlight_cells();
 }
@@ -123,7 +126,7 @@ MyWindow::Row_check(const int column, const int value)
 {
     for (int row_check = 0 ; row_check < 9 ; ++row_check)
     {
-        if (m_grid->Is_number_in_cell(row_check, column, value))
+        if (m_grid->is_number_in_cell(row_check, column, value))
             return m_ui->tableWidget->item(row_check, column);
     }
     return nullptr;
@@ -134,7 +137,7 @@ MyWindow::Column_check(const int row, const int value)
 {
     for (int column_check = 0 ; column_check < 9 ; ++column_check)
     {
-        if (m_grid->Is_number_in_cell(row, column_check, value))
+        if (m_grid->is_number_in_cell(row, column_check, value))
             return m_ui->tableWidget->item(row, column_check);
     }
     return nullptr;
@@ -150,7 +153,7 @@ MyWindow::Square_check(const int row, const int column, const int value)
     {
         for (int cell_column_count = 0 ; cell_column_count < 3 ; ++ cell_column_count)
         {
-            if (m_grid->Is_number_in_cell(row_check + cell_row_count,
+            if (m_grid->is_number_in_cell(row_check + cell_row_count,
                                           column_check + cell_column_count,
                                           value))
                 return m_ui->tableWidget->item(row_check + cell_row_count, column_check + cell_column_count);
@@ -247,5 +250,18 @@ void MyWindow::on_pushButton_clear_clicked()
 
     m_selected_cell->setText("");
     set_value_in_row_grid(row, column, 0);
+}
+
+
+void MyWindow::on_pushButton_Hint_clicked()
+{
+    m_solver->hint(m_grid);
+
+    auto filled_cell = m_grid->get_filled_cell();
+    auto cell = m_ui->tableWidget->item(filled_cell.first, filled_cell.second);
+
+    cell->setText(QString::number((*m_grid)[filled_cell.first][filled_cell.second]));
+    cell->setFlags(cell->flags() ^ Qt::ItemIsSelectable);
+    cell->setBackground(QColor("light green"));
 }
 

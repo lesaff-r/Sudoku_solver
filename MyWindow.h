@@ -2,6 +2,7 @@
 #define MYWINDOW_H
 
 #include "grid.h"
+#include "solver.h"
 
 #include <QWidget>
 #include <QTableWidgetItem>
@@ -48,8 +49,12 @@ private slots:
     void on_pushButton_9_clicked();
     void on_pushButton_clear_clicked();
 
+    void on_pushButton_Hint_clicked();
+
 private:
-    std::unique_ptr<Grid>   m_grid;
+    std::shared_ptr<Grid>   m_grid;
+    std::unique_ptr<Solver> m_solver;
+
     QTableWidgetItem *      m_selected_cell;
 
     Ui::Widget * m_ui;
