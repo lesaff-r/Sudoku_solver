@@ -36,11 +36,11 @@ MyWindow::Populate_TableWidget()
             if (cell == nullptr) {
                 cell = new QTableWidgetItem ("");
 
-                cell->setFlags(cell->flags() ^ Qt::ItemIsEditable);
-                cell->setTextAlignment(Qt::AlignCenter);
-
                 m_ui->tableWidget->setItem(row, column, cell);
             }
+
+            cell->setFlags(cell->flags() ^ Qt::ItemIsEditable);
+            cell->setTextAlignment(Qt::AlignCenter);
 
             if (raw_grid[row][column]) {
                 cell->setText(QString::number(raw_grid[row][column]));
@@ -109,52 +109,129 @@ void MyWindow::on_tableWidget_cellClicked(int row, int column)
 
 
 void
-    MyWindow::Blink_cell_in_red(QTableWidgetItem * cell)
+MyWindow::Blink_cell_in_red(QTableWidgetItem * cell)
 {
     QBrush color = cell->background();
     cell->setBackground(QColor("red"));
-    QTimer::singleShot(1000, [cell, color]{
+    QTimer::singleShot(500, [cell, color]{
         cell->setBackground(color);
     });
+}
+
+QTableWidgetItem *
+MyWindow::Row_check(const int column, const int value)
+{
+    for (int row_check = 0 ; row_check < 9 ; ++row_check)
+    {
+        if (m_grid->Is_number_in_cell(row_check, column, value))
+            return m_ui->tableWidget->item(row_check, column);
+    }
+    return nullptr;
+}
+
+QTableWidgetItem *
+MyWindow::Column_check(const int row, const int value)
+{
+    for (int column_check = 0 ; column_check < 9 ; ++column_check)
+    {
+        if (m_grid->Is_number_in_cell(row, column_check, value))
+            return m_ui->tableWidget->item(row, column_check);
+    }
+    return nullptr;
+}
+
+QTableWidgetItem *
+MyWindow::Square_check(const int row, const int column, const int value)
+{
+    return nullptr;
 }
 
 bool
 MyWindow::Can_edit_cell(const int row, const int column, const int value)
 {
-    for (int row_check = 0 ; row_check < 9 ; ++row_check)
+    if (QTableWidgetItem * cell = Row_check(column, value); cell != nullptr)
     {
-        if (m_grid->Is_number_in_cell(row_check, column, value))
-        {
-            QTableWidgetItem * cell = m_ui->tableWidget->item(row_check, column);
-
-            Blink_cell_in_red(cell);
-            return false;
-        }
+        Blink_cell_in_red(cell);
+        return false;
     }
-    for (int column_check = 0 ; column_check < 9 ; ++column_check)
+    if (QTableWidgetItem * cell = Column_check(row, value); cell != nullptr)
     {
-        if (m_grid->Is_number_in_cell(row, column_check, value))
-        {
-            QTableWidgetItem * cell = m_ui->tableWidget->item(row, column_check);
-
-            Blink_cell_in_red(cell);
-            return false;
-        }
+        Blink_cell_in_red(cell);
+        return false;
+    }
+    if (QTableWidgetItem * cell = Square_check(row, column, value); cell != nullptr)
+    {
+        Blink_cell_in_red(cell);
+        return false;
     }
 
     return true;
 }
 
-void MyWindow::on_pushButton_1_clicked()
+void
+MyWindow::on_numberButton_clicked(const int value)
 {
     const int row = m_selected_cell->row();
     const int column = m_selected_cell->column();
-    const QString value = "1";
 
-    if (Can_edit_cell(row, column, value.toInt()))
+    if (Can_edit_cell(row, column, value))
     {
-        m_selected_cell->setText(value);
-        set_value_in_row_grid(row, column, value.toInt());
+        m_selected_cell->setText(QString::number(value));
+        set_value_in_row_grid(row, column, value);
     }
+}
+
+void MyWindow::on_pushButton_1_clicked()
+{
+    on_numberButton_clicked(1);
+}
+
+void MyWindow::on_pushButton_2_clicked()
+{
+    on_numberButton_clicked(2);
+}
+
+void MyWindow::on_pushButton_3_clicked()
+{
+    on_numberButton_clicked(3);
+}
+
+void MyWindow::on_pushButton_4_clicked()
+{
+    on_numberButton_clicked(4);
+}
+
+void MyWindow::on_pushButton_5_clicked()
+{
+    on_numberButton_clicked(5);
+}
+
+void MyWindow::on_pushButton_6_clicked()
+{
+    on_numberButton_clicked(6);
+}
+
+void MyWindow::on_pushButton_7_clicked()
+{
+    on_numberButton_clicked(7);
+}
+
+void MyWindow::on_pushButton_8_clicked()
+{
+    on_numberButton_clicked(8);
+}
+
+void MyWindow::on_pushButton_9_clicked()
+{
+    on_numberButton_clicked(9);
+}
+
+void MyWindow::on_pushButton_clear_clicked()
+{
+    const int row = m_selected_cell->row();
+    const int column = m_selected_cell->column();
+
+    m_selected_cell->setText("");
+    set_value_in_row_grid(row, column, 0);
 }
 
