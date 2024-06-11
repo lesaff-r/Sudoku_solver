@@ -19,6 +19,7 @@ public:
     bool    is_number_in_cell(const int line, const int column, const int value) const;
 
     bool    is_number_in_column(const int column, const int number) const;
+    bool    is_number_in_line(const int line, const int number) const;
 
 public:
     const std::vector<int> & operator[](const int value) {return m_raw_grid[value];}

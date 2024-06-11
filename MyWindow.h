@@ -32,6 +32,7 @@ private:
     QTableWidgetItem *  Column_check(const int row, const int value);
     QTableWidgetItem *  Square_check(const int row, const int column, const int value);
     bool                Can_edit_cell(const int row, const int column, const int value);
+
     void on_numberButton_clicked(const int value);
     void set_value_in_row_grid(const int row, const int column, const int value);
 

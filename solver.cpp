@@ -14,19 +14,20 @@ Solver::hint(std::shared_ptr<Grid> grid)
     {
         for (size_t column_check = 0 ; column_check < 9 ; ++column_check)
         {
-            do_it(line_check, column_check);
+            if (do_it(line_check, column_check))
+                return;
         }
     }
 }
 
 bool
-Solver::do_it(const size_t & line, const size_t & column)
+Solver::do_it(const size_t & line, const size_t & column) const
 {
     const Raw_grid & grid = m_grid->get_grid();
 
     if (grid[line][column] != 0)
     {
-        qDebug() << "CHECKING [" << line << "][" << column << "] : " << grid[line][column];
+        //qDebug() << "CHECKING [" << line << "][" << column << "] : " << grid[line][column];
         if (check_lines(grid, line, column) ||
             check_columns(grid, line, column))
             return true;
@@ -41,14 +42,16 @@ Solver::do_it(const size_t & line, const size_t & column)
 }
 
 void
-Solver::fill_grid(int line, int column, int value)
+Solver::fill_grid(int line, int column, int value) const
 {
     m_grid->set_value_in_cell(line, column, value);
     m_grid->set_filled_cell({line, column});
+
+    qDebug() << "Filled [" << line << "][" << column << "] with : " << value;
 }
 
 bool
-Solver::check_lines(const Raw_grid & grid, const size_t & line, const size_t & column)
+Solver::check_lines(const Raw_grid & grid, const size_t & line, const size_t & column) const
 {
     const size_t LINE = (line + 1) % 3;
     size_t row_of_1st_number = column / 3 + 1;
@@ -81,7 +84,7 @@ Solver::check_lines(const Raw_grid & grid, const size_t & line, const size_t & c
 }
 
 bool
-Solver::check_line_1st_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number)
+Solver::check_line_1st_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
 {
     //qDebug() << "In LINE Case 1";
 
@@ -104,7 +107,7 @@ Solver::check_line_1st_case(const Raw_grid & grid, const size_t & line, const si
 }
 
 bool
-Solver::check_line_2nd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number)
+Solver::check_line_2nd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
 {
     // qDebug() << "In LINE Case 2";
 
@@ -127,7 +130,7 @@ Solver::check_line_2nd_case(const Raw_grid & grid, const size_t & line, const si
 }
 
 bool
-Solver::check_line_3rd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number)
+Solver::check_line_3rd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
 {
     //qDebug() << "In LINE Case 3" << std::endl;
 
@@ -150,7 +153,7 @@ Solver::check_line_3rd_case(const Raw_grid & grid, const size_t & line, const si
 }
 
 int
-Solver::check_number_in_line(const Raw_grid & grid, const size_t & line, const int number)
+Solver::check_number_in_line(const Raw_grid & grid, const size_t & line, const int number) const
 {
     for (size_t column_check = 0; column_check < 9; ++column_check)
     {
@@ -161,7 +164,7 @@ Solver::check_number_in_line(const Raw_grid & grid, const size_t & line, const i
 }
 
 int
-Solver::check_full_rows_in_line(const Raw_grid & grid, const size_t & line, const int row_of_found_number, const int number_to_check)
+Solver::check_full_rows_in_line(const Raw_grid & grid, const size_t & line, const int row_of_found_number, const int number_to_check) const
 {
     int numbers_in_row = 0;
 
@@ -188,7 +191,7 @@ Solver::try_to_fill_number_in_row_of_line(const Raw_grid & grid,
                                         const size_t line_to_fill,
                                         const int number_to_fill,
                                         const int row_of_1st_number,
-                                        const int row_of_2nd_number)
+                                        const int row_of_2nd_number) const
 {
     if (row_of_1st_number == 1)             // The First number is in the 1st rows of 3 cells (|X|X|X|3|4|5|6|7|8|)
     {
@@ -196,7 +199,7 @@ Solver::try_to_fill_number_in_row_of_line(const Raw_grid & grid,
             return try_to_fill_number_in_3rd_row_of_line(grid, line_to_fill, number_to_fill);
         else if (row_of_2nd_number == 3)    // The Second number is in the 3rd rows (|0|1|2|3|4|5|X|X|X|)
             return try_to_fill_number_in_2nd_row_of_line(grid, line_to_fill, number_to_fill);
-        else // Should never go here
+        else    // Should never go here
             qDebug() << "/!\\ Same rows ?!" << " 1st_row is " << row_of_1st_number << " & 2nd_row is " << row_of_2nd_number;
     }
 
@@ -206,7 +209,7 @@ Solver::try_to_fill_number_in_row_of_line(const Raw_grid & grid,
             return try_to_fill_number_in_3rd_row_of_line(grid, line_to_fill, number_to_fill);
         else if (row_of_2nd_number == 3)
             return try_to_fill_number_in_1st_row_of_line(grid, line_to_fill, number_to_fill);
-        else // Should never go here
+        else    // Should never go here
             qDebug() << "/!\\ Same rows ?!" << " 1st_row is " << row_of_1st_number << " & 2nd_row is " << row_of_2nd_number;
     }
 
@@ -228,7 +231,7 @@ Solver::try_to_fill_number_in_row_of_line(const Raw_grid & grid,
 
 // We are then trying to fill here |X|X|X|3|4|5|6|7|8|
 bool
-Solver::try_to_fill_number_in_1st_row_of_line(const Raw_grid & grid, const size_t line_to_fill, const int number_to_fill)
+Solver::try_to_fill_number_in_1st_row_of_line(const Raw_grid & grid, const size_t line_to_fill, const int number_to_fill) const
 {
     bool has_number = false;
     int number_of_blank = 0;
@@ -268,7 +271,7 @@ Solver::try_to_fill_number_in_1st_row_of_line(const Raw_grid & grid, const size_
 
 // We are then trying to fill here |0|1|2|X|X|X|6|7|8|
 bool
-Solver::try_to_fill_number_in_2nd_row_of_line(const Raw_grid & grid, const size_t line_to_fill, const int number_to_fill)
+Solver::try_to_fill_number_in_2nd_row_of_line(const Raw_grid & grid, const size_t line_to_fill, const int number_to_fill) const
 {
     bool has_number = false;
     int number_of_blank = 0;
@@ -299,16 +302,16 @@ Solver::try_to_fill_number_in_2nd_row_of_line(const Raw_grid & grid, const size_
 
     /*qDebug() << "Could not fill 2nd row of line with " << number_to_fill << " -> ";
     if (has_number)
-        std::cout << "already there" << std::endl;
+        qDebug() << "already there";
     else
-        std::cout << "too many possibilities" << std::endl;*/
+        qDebug() << "too many possibilities";*/
 
     return false;
 }
 
 // We are then trying to fill here |0|1|2|3|4|5|X|X|X|
 bool
-Solver::try_to_fill_number_in_3rd_row_of_line(const Raw_grid & grid, const size_t line_to_fill, const int number_to_fill)
+Solver::try_to_fill_number_in_3rd_row_of_line(const Raw_grid & grid, const size_t line_to_fill, const int number_to_fill) const
 {
     bool has_number = false;
     int number_of_blank = 0;
@@ -339,16 +342,325 @@ Solver::try_to_fill_number_in_3rd_row_of_line(const Raw_grid & grid, const size_
 
     /*qDebug() << "Could not fill 2nd row of line with " << number_to_fill << " -> ";
     if (has_number)
-        std::cout << "already there" << std::endl;
+        qDebug() << "already there";
     else
-        std::cout << "too many possibilities" << std::endl;*/
+        qDebug() << "too many possibilities";*/
+
 
     return false;
 }
 
 
 bool
-Solver::check_columns(const Raw_grid & grid, const size_t & line, const size_t & column)
+Solver::check_columns(const Raw_grid & grid, const size_t & line, const size_t & column) const
 {
+    const size_t COLUMN = (column + 1) % 3;
+    int row_of_1st_number = line / 3 + 1;
+
+    // First case
+    // COLUMN Number found      COLUMN To check          COLUMN To check
+    if (COLUMN == 1)
+        return check_column_1st_case(grid, line, column, row_of_1st_number);
+
+    // Second case
+    // COLUMN To check          COLUMN Number found     COLUMN To check
+    else if (COLUMN == 2)
+        return check_column_2nd_case(grid, line, column, row_of_1st_number);
+
+    // Third case
+    // COLUMN To check          COLUMN To check         COLUMN Number found
+    else if (COLUMN == 0)
+        return check_column_3rd_case(grid, line, column, row_of_1st_number);
+
+    else // Should never go here
+        qDebug() << "What am I doing here ?!" << " COLUMN is " << COLUMN;
+
+    return false;
+}
+
+bool
+Solver::check_column_1st_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+{
+    //qDebug() << "In COLUMN Case 1";
+
+    // Checking for the number in other columns
+    if (int row_of_2nd_number = check_number_in_column(grid, column + 1, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column + 2, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    if (int row_of_2nd_number = check_number_in_column(grid, column + 2, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column + 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    // Checking for full rows in other columns
+    if (int row_of_2nd_number = check_full_rows_in_columns(grid, column + 1, row_of_1st_number, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column + 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    if (int row_of_2nd_number = check_full_rows_in_columns(grid, column + 2, row_of_1st_number, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column + 2, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+
+    //qDebug() << "Number " << grid[line][column] << " not found on other columns";
+    return false;
+}
+
+bool
+Solver::check_column_2nd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+{
+    //qDebug() << "In COLUMN Case 2";
+
+    // Checking for the number in other columns
+    if (int row_of_2nd_number = check_number_in_column(grid, column - 1, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column + 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    if (int row_of_2nd_number = check_number_in_column(grid, column + 1, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column - 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    // Checking for full rows in other columns
+    if (int row_of_2nd_number = check_full_rows_in_columns(grid, column - 1, row_of_1st_number, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column - 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    if (int row_of_2nd_number = check_full_rows_in_columns(grid, column + 1, row_of_1st_number, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column + 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    //qDebug() << "Number " << grid[line][column] << " not found on other columns";
+    return false;
+}
+
+bool
+Solver::check_column_3rd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+{
+    //qDebug() << "In COLUMN Case 3";
+
+    // Checking for the number in other columns
+    if (int row_of_2nd_number = check_number_in_column(grid, column - 1, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column - 2, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    if (int row_of_2nd_number = check_number_in_column(grid, column - 2, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column - 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    // Checking for full rows in other columns
+    if (int row_of_2nd_number = check_full_rows_in_columns(grid, column - 1, row_of_1st_number, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column - 1, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    if (int row_of_2nd_number = check_full_rows_in_columns(grid, column - 2, row_of_1st_number, grid[line][column]))
+        return try_to_fill_number_in_row_of_columns(grid, column - 2, grid[line][column], row_of_1st_number, row_of_2nd_number);
+
+    //qDebug() << "Number " << grid[line][column] << " not found on other columns";
+    return false;
+}
+
+int
+Solver::check_number_in_column(const Raw_grid & grid, const size_t & column, const int number) const
+{
+    for (size_t line_check = 0; line_check < 9; ++line_check)
+    {
+        if (grid[line_check][column] == number)
+            return (line_check / 3 + 1);
+    }
+    return 0;
+}
+
+int
+Solver::check_full_rows_in_columns(const Raw_grid & grid, const size_t & column, const int row_of_found_number, const int number_to_check) const
+{
+    int numbers_in_row = 0;
+
+    for (size_t line_check = 0; line_check < 9; ++line_check)
+    {
+        if (grid[line_check][column] ||
+            m_grid->is_number_in_line(line_check, number_to_check))
+            numbers_in_row++;
+
+        if ((line_check + 1) % 3 == 0)
+        {
+            if (numbers_in_row == 3 &&
+                row_of_found_number != line_check / 3 + 1)
+                return (line_check / 3 + 1);  // Number not found but the row is already full or can not be filled with it
+            else
+                numbers_in_row = 0;
+        }
+    }
+    return 0;
+}
+
+bool
+Solver::try_to_fill_number_in_row_of_columns(const Raw_grid & grid, const size_t column_to_fill, const int number_to_fill, const int row_of_1st_number, const int row_of_2nd_number) const
+{
+    if (row_of_1st_number == 1)
+    {
+        if (row_of_2nd_number == 2)
+            return try_to_fill_number_in_3rd_row_of_column(grid, column_to_fill, number_to_fill);
+        else if (row_of_2nd_number == 3)
+            return try_to_fill_number_in_2nd_row_of_column(grid, column_to_fill, number_to_fill);
+        else // Should never go here
+            qDebug() << "/!\\ Same rows ?!" << " 1st_row is " << row_of_1st_number << " & 2nd_row is " << row_of_2nd_number;
+    }
+
+    else if (row_of_1st_number == 2)
+    {
+        if (row_of_2nd_number == 1)
+            return try_to_fill_number_in_3rd_row_of_column(grid, column_to_fill, number_to_fill);
+        else if (row_of_2nd_number == 3)
+            return try_to_fill_number_in_1st_row_of_column(grid, column_to_fill, number_to_fill);
+        else // Should never go here
+            qDebug() << "/!\\ Same rows ?!" << " 1st_row is " << row_of_1st_number << " & 2nd_row is " << row_of_2nd_number;
+    }
+
+    else if (row_of_1st_number == 3)   // Third rows of 3 cells
+    {
+        if (row_of_2nd_number == 1)
+            return try_to_fill_number_in_2nd_row_of_column(grid, column_to_fill, number_to_fill);
+        else if (row_of_2nd_number == 2)
+            return try_to_fill_number_in_1st_row_of_column(grid, column_to_fill, number_to_fill);
+        else // Should never go here
+            qDebug() << "/!\\ Same rows ?!" << " 1st_row is " << row_of_1st_number << " & 2nd_row is " << row_of_2nd_number;
+    }
+
+    else    // Should never go here
+        qDebug() << "What am I doing here ?!" << " 1st_row is " << row_of_1st_number;
+
+    return false;
+}
+
+// We are trying to fill here |X|
+//                            |X|
+//                            |X|
+//                            |3|
+//                            |4|
+//                            |5|
+//                            |6|
+//                            |7|
+//                            |8|
+bool
+Solver::try_to_fill_number_in_1st_row_of_column(const Raw_grid & grid, const size_t column_to_fill, const int number_to_fill) const
+{
+    bool has_number = false;
+    int number_of_blank = 0;
+    size_t cell_to_fill = 0;
+
+    for (size_t cell = 0; cell < 3; cell++)
+    {
+        if (grid[cell][column_to_fill] == 0)
+        {
+            // Checking the line to see if it has number_to_fill
+            if (!m_grid->is_number_in_line(cell, number_to_fill))
+            {
+                number_of_blank++;
+                cell_to_fill = cell;
+            }
+        }
+        else if (grid[cell][column_to_fill] == number_to_fill)
+            has_number = true;
+    }
+
+    if (!has_number && number_of_blank == 1)
+    {
+        // Finally filling the grid
+        fill_grid(cell_to_fill, column_to_fill, number_to_fill);
+
+        return true;
+    }
+
+    /*qDebug() << "Could not fill 1st row of column with " << number_to_fill << " -> ";
+    if (has_number)
+        qDebug() << "already there";
+    else
+        qDebug() << "too many possibilities";*/
+
+    return false;
+}
+
+// We are trying to fill here |0|
+//                            |1|
+//                            |2|
+//                            |X|
+//                            |X|
+//                            |X|
+//                            |6|
+//                            |7|
+//                            |8|
+bool
+Solver::try_to_fill_number_in_2nd_row_of_column(const Raw_grid & grid, const size_t column_to_fill, const int number_to_fill) const
+{
+    bool has_number = false;
+    int number_of_blank = 0;
+    size_t cell_to_fill = 0;
+
+    for (size_t cell = 3; cell < 6; cell++)
+    {
+        if (grid[cell][column_to_fill] == 0)
+        {
+            // Checking the line to see if it has number_to_fill
+            if (!m_grid->is_number_in_line(cell, number_to_fill))
+            {
+                number_of_blank++;
+                cell_to_fill = cell;
+            }
+        }
+        else if (grid[cell][column_to_fill] == number_to_fill)
+            has_number = true;
+    }
+
+    if (!has_number && number_of_blank == 1)
+    {
+        // Finally filling the grid
+        fill_grid(cell_to_fill, column_to_fill, number_to_fill);
+
+        return true;
+    }
+
+    /*qDebug() << "Could not fill 1st row of column with " << number_to_fill << " -> ";
+    if (has_number)
+        qDebug() << "already there";
+    else
+        qDebug() << "too many possibilities";*/
+
+    return false;
+}
+
+// We are trying to fill here |0|
+//                            |1|
+//                            |2|
+//                            |3|
+//                            |4|
+//                            |5|
+//                            |X|
+//                            |X|
+//                            |X|
+bool
+Solver::try_to_fill_number_in_3rd_row_of_column(const Raw_grid & grid, const size_t column_to_fill, const int number_to_fill) const
+{
+    bool has_number = false;
+    int number_of_blank = 0;
+    size_t cell_to_fill = 0;
+
+    for (size_t cell = 6; cell < 9; cell++)
+    {
+        if (grid[cell][column_to_fill] == 0)
+        {
+            // Checking the line to see if it has number_to_fill
+            if (!m_grid->is_number_in_line(cell, number_to_fill))
+            {
+                number_of_blank++;
+                cell_to_fill = cell;
+            }
+        }
+        else if (grid[cell][column_to_fill] == number_to_fill)
+            has_number = true;
+    }
+
+    if (!has_number && number_of_blank == 1)
+    {
+        // Finally filling the grid
+        fill_grid(cell_to_fill, column_to_fill, number_to_fill);
+
+        return true;
+    }
+
+    /*qDebug() << "Could not fill 1st row of column with " << number_to_fill << " -> ";
+    if (has_number)
+        qDebug() << "already there";
+    else
+        qDebug() << "too many possibilities";*/
+
     return false;
 }

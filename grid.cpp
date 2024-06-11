@@ -63,3 +63,14 @@ Grid::is_number_in_column(const int column, const int number) const
     }
     return false;
 }
+
+bool
+Grid::is_number_in_line(const int line, const int number) const
+{
+    for (int column_check = 0; column_check < 9; ++column_check)
+    {
+        if (m_raw_grid[line][column_check] == number)
+            return true;
+    }
+    return false;
+}
