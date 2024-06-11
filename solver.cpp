@@ -18,6 +18,8 @@ Solver::hint(std::shared_ptr<Grid> grid)
                 return;
         }
     }
+
+    qDebug() << "Solver could not find a solution OR the Grid is full";
 }
 
 bool
@@ -32,12 +34,12 @@ Solver::do_it(const size_t & line, const size_t & column) const
             check_columns(grid, line, column))
             return true;
     }
-    /*else
+    else
     {
-        if (can_fill_line(grid, line) ||
-            can_fill_column(grid, column))
+        if (try_to_fill_line(line) ||
+            try_to_fill_column(column))
             return true;
-    }*/
+    }
     return false;
 }
 
@@ -652,7 +654,6 @@ Solver::try_to_fill_number_in_3rd_row_of_column(const Raw_grid & grid, const siz
     {
         // Finally filling the grid
         fill_grid(cell_to_fill, column_to_fill, number_to_fill);
-
         return true;
     }
 
@@ -661,6 +662,245 @@ Solver::try_to_fill_number_in_3rd_row_of_column(const Raw_grid & grid, const siz
         qDebug() << "already there";
     else
         qDebug() << "too many possibilities";*/
+
+    return false;
+}
+
+
+// We might have a chance to fill the line with a missing number on that line
+bool
+Solver::try_to_fill_line(const size_t line) const
+{
+    std::vector<int>    numbers{ 1,2,3,4,5,6,7,8,9 };
+    std::vector<int>    numbers_in_line;
+    std::vector<int>    missing_numbers;
+    std::vector<size_t> blank_columns;
+
+
+    for (size_t column_check = 0; column_check < 9; ++column_check)
+    {
+        if ((*m_grid)[line][column_check])
+            numbers_in_line.push_back((*m_grid)[line][column_check]);
+        else
+            blank_columns.push_back(column_check);
+    }
+
+    std::sort(numbers_in_line.begin(), numbers_in_line.end());
+    std::set_difference(numbers.begin(), numbers.end(),
+                        numbers_in_line.begin(), numbers_in_line.end(),
+                        std::back_inserter(missing_numbers));
+
+    /*qDebug() << "Missing numbers in line " << line << " : ";
+        for (auto & number : missing_numbers)
+            qDebug() << number << " ";
+
+        qDebug() << "In maybe column : ";
+        for (auto & blank_column : blank_columns)
+            qDebug() << blank_column << " ";
+    */
+
+
+    // Hurray, only one possibility !
+    if (missing_numbers.size() == 1) {
+        fill_grid(line, blank_columns.front(), missing_numbers.front());
+        return true;
+    }
+    else if (missing_numbers.size() == 2)
+        return try_to_fill_line_with_2_blank_space(line, missing_numbers, blank_columns);
+
+    else if (missing_numbers.size() == 3)
+        return try_to_fill_line_with_more_blank_space(line, missing_numbers, blank_columns);
+
+    return false;
+}
+
+bool
+Solver::try_to_fill_line_with_2_blank_space(const size_t line,
+                                           const std::vector<int> & missing_numbers,
+                                           const std::vector<size_t> & blank_columns) const
+{
+    auto & blank_column_one = blank_columns.front();
+    auto & blank_column_two = blank_columns.back();
+
+    for (auto & missing_number : missing_numbers)
+    {
+        if (m_grid->is_number_in_column(blank_column_one, missing_number))
+        {
+            fill_grid(line, blank_column_two, missing_number);
+            return true;
+        }
+        if (m_grid->is_number_in_column(blank_column_two, missing_number))
+        {
+            fill_grid(line, blank_column_one, missing_number);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Solver::try_to_fill_line_with_more_blank_space(const size_t line,
+                                            const std::vector<int> & missing_numbers,
+                                            const std::vector<size_t> & blank_columns) const
+{
+    for (auto it = blank_columns.begin() ;
+         it != blank_columns.end();
+         ++it)
+    {
+        // We will emplace the times a missing number is found at this number (-1) location
+        std::vector<size_t>     found_numbers = { 0,0,0,0,0,0,0,0,0 };
+
+        // We are checking every blank column
+        for (auto blank_column = blank_columns.begin();
+             blank_column != blank_columns.end();
+             ++blank_column)
+        {
+            if (blank_column != it)
+            {
+                // For every missing number
+                for (auto & missing_number : missing_numbers)
+                {
+                    if (m_grid->is_number_in_column(*blank_column, missing_number))
+                        found_numbers[missing_number - 1]++;
+                }
+            }
+        }
+
+        // Did we find a missing number enough times
+        for (auto found_number = found_numbers.begin();
+             found_number != found_numbers.end();
+             ++found_number)
+        {
+            // We need to have found it as much as there are missing numbers
+            if (*found_number == missing_numbers.size() - 1)
+            {
+                size_t number_to_fill = std::distance(found_numbers.begin(), found_number) + 1;
+
+                fill_grid(line, *it, number_to_fill);
+                return true;
+            }
+        }
+
+        // Reseting
+        for (auto & found_number : found_numbers)
+            found_number = 0;
+    }
+
+    return false;
+}
+
+
+// We might have a chance to fill the column with a missing number on that column
+bool
+Solver::try_to_fill_column(const size_t column) const
+{
+    std::vector<int>    numbers{ 1,2,3,4,5,6,7,8,9 };
+    std::vector<int>    numbers_in_column;
+    std::vector<int>    missing_numbers;
+    std::vector<size_t> blank_lines;
+
+
+    for (size_t line_check = 0; line_check < 9; ++line_check)
+    {
+        if ((*m_grid)[line_check][column])
+            numbers_in_column.push_back((*m_grid)[line_check][column]);
+        else
+            blank_lines.push_back(line_check);
+    }
+
+    std::sort(numbers_in_column.begin(), numbers_in_column.end());
+    std::set_difference(numbers.begin(), numbers.end(),
+                        numbers_in_column.begin(), numbers_in_column.end(),
+                        std::back_inserter(missing_numbers));
+
+    if (missing_numbers.size() == 1) {
+
+        fill_grid(blank_lines.front(), column, missing_numbers.front());
+        return true;
+    }
+    else if (missing_numbers.size() == 2)
+        return try_to_fill_column_with_2_blank_space(column, missing_numbers, blank_lines);
+
+    else if (missing_numbers.size() == 3)
+        // Could work with more than 3 blank space but would be costly
+        return try_to_fill_column_with_more_blank_space(column, missing_numbers, blank_lines);
+
+    return false;
+}
+
+bool
+Solver::try_to_fill_column_with_2_blank_space(const size_t column,
+                                            const std::vector<int> & missing_numbers,
+                                            const std::vector<size_t> & blank_lines) const
+{
+    auto & blank_line_one = blank_lines.front();
+    auto & blank_line_two = blank_lines.back();
+
+    for (auto & missing_number : missing_numbers)
+    {
+        if (m_grid->is_number_in_line(blank_line_one, missing_number))
+        {
+            fill_grid(blank_line_two, column, missing_number);
+            return true;
+        }
+        if (m_grid->is_number_in_line(blank_line_two, missing_number))
+        {
+            fill_grid(blank_line_one, column, missing_number);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Solver::try_to_fill_column_with_more_blank_space(const size_t column,
+                                             const std::vector<int> & missing_numbers,
+                                             const std::vector<size_t> & blank_lines) const
+{
+    for (auto it = blank_lines.begin();
+         it != blank_lines.end();
+         ++it)
+    {
+        // We will emplace the times a missing number is found at this number (-1) location
+        std::vector<size_t>     found_numbers = { 0,0,0,0,0,0,0,0,0 };
+
+        // We are checking every blank line
+        for (auto blank_line = blank_lines.begin();
+             blank_line != blank_lines.end();
+             ++blank_line)
+        {
+            if (blank_line != it)
+            {
+                // For every missing number
+                for (auto & missing_number : missing_numbers)
+                {
+                    if (m_grid->is_number_in_line(*blank_line, missing_number))
+                        found_numbers[missing_number - 1]++;
+                }
+            }
+        }
+
+        // Did we find a missing number enough times
+        for (auto found_number = found_numbers.begin();
+             found_number != found_numbers.end();
+             ++found_number)
+        {
+            // We need to have found it as much as there are missing numbers
+            if (*found_number == missing_numbers.size() - 1)
+            {
+                size_t number_to_fill = std::distance(found_numbers.begin(), found_number) + 1;
+
+                fill_grid(*it, column, number_to_fill);
+                return true;
+            }
+        }
+
+        // Reseting
+        for (auto & found_number : found_numbers)
+            found_number = 0;
+    }
 
     return false;
 }

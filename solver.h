@@ -46,6 +46,23 @@ private:
     bool    try_to_fill_number_in_2nd_row_of_column(const Raw_grid & grid, const size_t column_to_fill, const int number_to_fill) const;
     bool    try_to_fill_number_in_3rd_row_of_column(const Raw_grid & grid, const size_t column_to_fill, const int number_to_fill) const;
 
+    bool    try_to_fill_line(const size_t line) const;
+    bool    try_to_fill_line_with_2_blank_space(const size_t line,
+                                                const std::vector<int> & missing_numbers,
+                                                const std::vector<size_t> & blank_columns) const;
+    bool    try_to_fill_line_with_more_blank_space(const size_t line,
+                                                    const std::vector<int> & missing_numbers,
+                                                    const std::vector<size_t> & blank_columns) const;
+
+    bool    try_to_fill_column(const size_t column) const;
+    bool    try_to_fill_column_with_2_blank_space(const size_t column,
+                                                 const std::vector<int> & missing_numbers,
+                                                 const std::vector<size_t> & blank_lines) const;
+    bool    try_to_fill_column_with_more_blank_space(const size_t column,
+                                                    const std::vector<int> & missing_numbers,
+                                                    const std::vector<size_t> & blank_lines) const;
+
+
 
 private:
     std::shared_ptr<Grid> m_grid;
