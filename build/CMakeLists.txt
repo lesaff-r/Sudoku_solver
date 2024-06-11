@@ -1,0 +1,84 @@
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 3 of the License, or
+## any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with this program; If not, see <http://www.gnu.org/licenses/>.
+##
+## Copyright (C) 2024 Lesaffre Remi (remi.lesaffre@gmail.com)
+##
+
+# Cmake initialisation
+PROJECT(Sudoku)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/)
+
+
+# Project version
+SET(SUDOKU_VERSION_MAJOR 0)
+SET(SUDOKU_VERSION_MINOR 0)
+SET(SUDOKU_VERSION_PATCH 00)
+SET(SUDOKU_VERSION_EXTRA 0)
+SET(SUDOKU_VERSION ${SUDOKU_VERSION_MAJOR}.${SUDOKU_VERSION_MINOR}.${SUDOKU_VERSION_PATCH})
+SET(SUDOKU_VERSION_FULL ${SUDOKU_VERSION}.${SUDOKU_VERSION_EXTRA})
+
+# Project Resources path
+SET(RESOURCES_PATH ${CMAKE_SOURCE_DIR}/Resources)
+
+# Project configuration
+SET(SUDOKU_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Include/)
+SET(SUDOKU_SOURCE_DIR ${CMAKE_SOURCE_DIR}/Source/)
+SET(SUDOKU_SHADER_DIR ${CMAKE_SOURCE_DIR}/Resources/)
+
+# Configuration files
+# CONFIGURE_FILE(
+   # ${SUDOKU_INCLUDE_DIR}/version.h.in
+   # ${SUDOKU_INCLUDE_DIR}/version.h
+# )
+# CONFIGURE_FILE(
+   # ${SUDOKU_INCLUDE_DIR}/config.h.in
+   # ${SUDOKU_INCLUDE_DIR}/config.h
+# )
+   
+   
+# Libraries dependencies
+#FIND_PACKAGE(OpenGL REQUIRED)
+#FIND_PACKAGE(GLFW REQUIRED glfw3)
+FIND_PACKAGE(glm REQUIRED)
+#FIND_PACKAGE(imgui REQUIRED)
+
+
+# Source files
+FILE(GLOB_RECURSE SUDOKU_SOURCE_FILES ${SUDOKU_SOURCE_DIR}/*.cpp)
+FOREACH(SOURCE_FILE IN ITEMS ${SUDOKU_SOURCE_FILES})
+    GET_FILENAME_COMPONENT(SOURCE_FILE_PATH "${SOURCE_FILE}" PATH)
+    FILE(RELATIVE_PATH SOURCE_FILE_RELATIVE_PATH "${CMAKE_SOURCE_DIR}" "${SOURCE_FILE_PATH}")
+    STRING(REPLACE "/" "\\" GROUP_PATH "${SOURCE_FILE_RELATIVE_PATH}")
+    SOURCE_GROUP("${GROUP_PATH}" FILES "${SOURCE_FILE}")
+ENDFOREACH()
+
+# Include files
+FILE(GLOB_RECURSE SUDOKU_INCLUDE_FILES ${SUDOKU_INCLUDE_DIR}/*.hpp ${SUDOKU_INCLUDE_DIR}/*.h)	
+FOREACH(HEADER_FILE IN ITEMS ${SUDOKU_INCLUDE_FILES})
+    GET_FILENAME_COMPONENT(HEADER_FILE_PATH "${HEADER_FILE}" PATH)
+    FILE(RELATIVE_PATH HEADER_FILE_RELATIVE_PATH "${CMAKE_SOURCE_DIR}" "${HEADER_FILE_PATH}")
+    STRING(REPLACE "/" "\\" GROUP_PATH "${HEADER_FILE_RELATIVE_PATH}")
+    SOURCE_GROUP("${GROUP_PATH}" FILES "${HEADER_FILE}")
+ENDFOREACH()
+
+	
+# Include directories
+INCLUDE_DIRECTORIES(${SUDOKU_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(SYSTEM ${GLM_INCLUDE_DIRS}) # ${GLFW_INCLUDE_DIR} ${IMGUI_INCLUDE_DIR}
+
+
+# Binary settings
+ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${SUDOKU_SOURCE_FILES} ${SUDOKU_INCLUDE_FILES} ${SUDOKU_SHADER_FILES})
+TARGET_LINK_LIBRARIES(${CMAKE_PROJECT_NAME} ${GLFW_LIBRARIES})
