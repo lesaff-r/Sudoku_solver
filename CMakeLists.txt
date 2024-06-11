@@ -1,84 +1,72 @@
-##
-## This program is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 3 of the License, or
-## any later version.
-##
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-##
-## You should have received a copy of the GNU General Public License along
-## with this program; If not, see <http://www.gnu.org/licenses/>.
-##
-## Copyright (C) 2024 Lesaffre Remi (remi.lesaffre@gmail.com)
-##
+cmake_minimum_required(VERSION 3.5)
 
-# Cmake initialisation
-PROJECT(Sudoku)
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/)
+project(My_First_Gui VERSION 0.1 LANGUAGES CXX)
 
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
-# Project version
-SET(SUDOKU_VERSION_MAJOR 0)
-SET(SUDOKU_VERSION_MINOR 0)
-SET(SUDOKU_VERSION_PATCH 00)
-SET(SUDOKU_VERSION_EXTRA 0)
-SET(SUDOKU_VERSION ${SUDOKU_VERSION_MAJOR}.${SUDOKU_VERSION_MINOR}.${SUDOKU_VERSION_PATCH})
-SET(SUDOKU_VERSION_FULL ${SUDOKU_VERSION}.${SUDOKU_VERSION_EXTRA})
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Project Resources path
-SET(RESOURCES_PATH ${CMAKE_SOURCE_DIR}/Resources)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-# Project configuration
-SET(SUDOKU_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/Include/)
-SET(SUDOKU_SOURCE_DIR ${CMAKE_SOURCE_DIR}/Source/)
-SET(SUDOKU_SHADER_DIR ${CMAKE_SOURCE_DIR}/Resources/)
+set(PROJECT_SOURCES
+        main.cpp
+        MyWindow.cpp
+        MyWindow.h
+        MyWindow.ui
+)
 
-# Configuration files
-# CONFIGURE_FILE(
-   # ${SUDOKU_INCLUDE_DIR}/version.h.in
-   # ${SUDOKU_INCLUDE_DIR}/version.h
-# )
-# CONFIGURE_FILE(
-   # ${SUDOKU_INCLUDE_DIR}/config.h.in
-   # ${SUDOKU_INCLUDE_DIR}/config.h
-# )
-   
-   
-# Libraries dependencies
-#FIND_PACKAGE(OpenGL REQUIRED)
-#FIND_PACKAGE(GLFW REQUIRED glfw3)
-FIND_PACKAGE(glm REQUIRED)
-#FIND_PACKAGE(imgui REQUIRED)
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(My_First_Gui
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+        grid.h grid.cpp
+        solver.h solver.cpp
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET My_First_Gui APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+else()
+    if(ANDROID)
+        add_library(My_First_Gui SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(My_First_Gui
+            ${PROJECT_SOURCES}
+        )
+    endif()
+endif()
 
+target_link_libraries(My_First_Gui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-# Source files
-FILE(GLOB_RECURSE SUDOKU_SOURCE_FILES ${SUDOKU_SOURCE_DIR}/*.cpp)
-FOREACH(SOURCE_FILE IN ITEMS ${SUDOKU_SOURCE_FILES})
-    GET_FILENAME_COMPONENT(SOURCE_FILE_PATH "${SOURCE_FILE}" PATH)
-    FILE(RELATIVE_PATH SOURCE_FILE_RELATIVE_PATH "${CMAKE_SOURCE_DIR}" "${SOURCE_FILE_PATH}")
-    STRING(REPLACE "/" "\\" GROUP_PATH "${SOURCE_FILE_RELATIVE_PATH}")
-    SOURCE_GROUP("${GROUP_PATH}" FILES "${SOURCE_FILE}")
-ENDFOREACH()
+# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# If you are developing for iOS or macOS you should consider setting an
+# explicit, fixed bundle identifier manually though.
+if(${QT_VERSION} VERSION_LESS 6.1.0)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.My_First_Gui)
+endif()
+set_target_properties(My_First_Gui PROPERTIES
+    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
 
-# Include files
-FILE(GLOB_RECURSE SUDOKU_INCLUDE_FILES ${SUDOKU_INCLUDE_DIR}/*.hpp ${SUDOKU_INCLUDE_DIR}/*.h)	
-FOREACH(HEADER_FILE IN ITEMS ${SUDOKU_INCLUDE_FILES})
-    GET_FILENAME_COMPONENT(HEADER_FILE_PATH "${HEADER_FILE}" PATH)
-    FILE(RELATIVE_PATH HEADER_FILE_RELATIVE_PATH "${CMAKE_SOURCE_DIR}" "${HEADER_FILE_PATH}")
-    STRING(REPLACE "/" "\\" GROUP_PATH "${HEADER_FILE_RELATIVE_PATH}")
-    SOURCE_GROUP("${GROUP_PATH}" FILES "${HEADER_FILE}")
-ENDFOREACH()
+include(GNUInstallDirs)
+install(TARGETS My_First_Gui
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
-	
-# Include directories
-INCLUDE_DIRECTORIES(${SUDOKU_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(SYSTEM ${GLM_INCLUDE_DIRS}) # ${GLFW_INCLUDE_DIR} ${IMGUI_INCLUDE_DIR}
-
-
-# Binary settings
-ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${SUDOKU_SOURCE_FILES} ${SUDOKU_INCLUDE_FILES} ${SUDOKU_SHADER_FILES})
-TARGET_LINK_LIBRARIES(${CMAKE_PROJECT_NAME} ${GLFW_LIBRARIES})
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(My_First_Gui)
+endif()
