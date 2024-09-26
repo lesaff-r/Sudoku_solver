@@ -4,6 +4,7 @@
 #include "grid.h"
 
 #include <memory>
+#include <vector>
 
 class Solver
 {

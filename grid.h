@@ -1,9 +1,9 @@
 #ifndef GRID_H
 #define GRID_H
 
-#include <vector>
+#include <array>
 
-using Raw_grid = std::vector<std::vector<int>>;
+using Raw_grid = std::array<std::array<int, 9>, 9>;
 
 class Grid
 {
@@ -22,7 +22,7 @@ public:
     bool    is_number_in_line(const int line, const int number) const;
 
 public:
-    const std::vector<int> & operator[](const int value) {return m_raw_grid[value];}
+    const std::array<int, 9> & operator[](const int value) {return m_raw_grid[value];}
 
 private:
     void Init_grid();
