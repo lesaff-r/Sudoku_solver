@@ -53,6 +53,8 @@ private slots:
 
     void on_pushButton_Hint_clicked();
 
+    void on_pushButton_Solve_clicked();
+
 private:
     std::shared_ptr<Grid>   m_grid;
     std::unique_ptr<Solver> m_solver;

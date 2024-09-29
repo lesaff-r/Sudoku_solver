@@ -288,7 +288,7 @@
   <widget class="QPushButton" name="pushButton_Hint">
    <property name="geometry">
     <rect>
-     <x>635</x>
+     <x>580</x>
      <y>540</y>
      <width>75</width>
      <height>25</height>
@@ -296,6 +296,19 @@
    </property>
    <property name="text">
     <string>Hint</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Solve">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>540</y>
+     <width>75</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Solve</string>
    </property>
   </widget>
  </widget>

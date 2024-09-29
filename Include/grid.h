@@ -21,6 +21,8 @@ public:
     bool    is_number_in_column(const int column, const int number) const;
     bool    is_number_in_line(const int line, const int number) const;
 
+    void    print() const;
+
 public:
     const std::array<int, 9> & operator[](const int value) {return m_raw_grid[value];}
 

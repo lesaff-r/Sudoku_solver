@@ -1,5 +1,7 @@
 #include "grid.h"
 
+#include <iostream>
+
 Grid::Grid() {
     Init_grid();
 }
@@ -49,7 +51,7 @@ Grid::Init_grid()
         { 1,7,0, 9,0,0, 4,0,0 },
         { 0,0,0, 5,1,0, 6,0,0 }*/
 
-        // VERY HARD
+        /*// VERY HARD
         { 0,0,0, 2,0,0, 3,0,0 },
         { 0,0,0, 3,0,0, 0,5,7 },
         { 0,9,8, 5,0,0, 0,0,0 },
@@ -60,11 +62,11 @@ Grid::Init_grid()
 
         { 0,0,0, 0,0,5, 9,1,0 },
         { 5,1,0, 0,0,9, 0,0,0 },
-        { 0,0,3, 0,0,4, 0,0,0 }
+        { 0,0,3, 0,0,4, 0,0,0 }*/
 
 
         // EXTREME
-        /*{ 0,9,0, 0,0,0, 1,0,2 },
+        { 0,9,0, 0,0,0, 1,0,2 },
         { 0,0,8, 0,0,0, 0,0,0 },
         { 4,0,0, 9,0,1, 0,0,3 },
 
@@ -74,7 +76,7 @@ Grid::Init_grid()
 
         { 5,0,0, 2,0,7, 0,0,6 },
         { 0,0,0, 0,0,0, 5,0,0 },
-        { 3,0,7, 0,0,0, 0,4,0 }*/
+        { 3,0,7, 0,0,0, 0,4,0 }
     }};
 }
 
@@ -129,4 +131,17 @@ Grid::is_number_in_line(const int line, const int number) const
             return true;
     }
     return false;
+}
+
+void
+Grid::print() const
+{
+    for (int line = 0; line < 9; ++line)
+    {
+        for (int column = 0; column < 9; ++column) {
+            std::cout << m_raw_grid[line][column] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout<<std::endl;
 }

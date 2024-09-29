@@ -6,6 +6,102 @@ Solver::Solver()
 
 
 void
+Solver::solve(std::shared_ptr<Grid> grid)
+{
+    m_grid = std::move(grid);
+
+    try_number();
+    m_grid->print();
+}
+
+bool
+Solver::try_number()
+{
+    const Raw_grid & grid = m_grid->get_grid();
+
+    std::pair<int, int> coord = find_empty(grid);
+
+    if (coord.first != -1)
+    {
+        int line = coord.first;
+        int column = coord.second;
+
+        for (int number=1 ; number < 10 ; ++number)
+        {
+            if (is_valid(grid, number, coord))
+            {
+                //std::cout << "Setting " << number << " in grid" << std::endl;
+                m_grid->set_value_in_cell(line, column, number);
+
+                if (try_number())
+                    return true;
+
+                //std::cout << "Resetting" << std::endl;
+                m_grid->set_value_in_cell(line, column, 0);
+            }
+        }
+    }
+    else
+        return true;
+
+    return false;
+}
+
+std::pair<int, int>
+Solver::find_empty(const Raw_grid & grid)
+{
+    for (int line = 0; line < 9; ++line)
+    {
+        for (int column = 0; column < 9; ++column)
+        {
+            if (grid[line][column] == 0)
+            {
+                //std::cout << "Testing coord are : " << line << ";" << column << std::endl;
+                return std::make_pair(line, column);
+            }
+        }
+    }
+
+    return std::make_pair(-1, -1);
+}
+
+bool
+Solver::is_valid(const Raw_grid & grid, int number, std::pair<int, int> & coord)
+{
+    // Check column
+    for (int column = 0; column < 9; ++column)
+    {
+        if (grid[coord.first][column] == number && coord.second != column)
+            return false;
+    }
+
+    // Check line
+    for (int line = 0; line < 9; ++line)
+    {
+        if (grid[line][coord.second] == number && coord.first != line)
+            return false;
+    }
+
+    // Check 3*3 square
+    int cell_x = coord.first / 3;
+    int cell_y = coord.second / 3;
+    for (int box_x=cell_x * 3; box_x < cell_x * 3 + 3; box_x++)
+    {
+        for (int box_y=cell_y * 3; box_y < cell_y * 3 + 3; box_y++)
+        {
+            if (grid[box_x][box_y] == number &&
+                box_x != coord.first &&
+                box_y != coord.second) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+void
 Solver::hint(std::shared_ptr<Grid> grid)
 {
     m_grid = std::move(grid);
@@ -23,7 +119,7 @@ Solver::hint(std::shared_ptr<Grid> grid)
 }
 
 bool
-Solver::do_it(const size_t & line, const size_t & column) const
+Solver::do_it(const size_t line, const size_t column) const
 {
     const Raw_grid & grid = m_grid->get_grid();
 
@@ -53,7 +149,7 @@ Solver::fill_grid(int line, int column, int value) const
 }
 
 bool
-Solver::check_lines(const Raw_grid & grid, const size_t & line, const size_t & column) const
+Solver::check_lines(const Raw_grid & grid, const size_t line, const size_t column) const
 {
     const size_t LINE = (line + 1) % 3;
     size_t row_of_1st_number = column / 3 + 1;
@@ -86,7 +182,7 @@ Solver::check_lines(const Raw_grid & grid, const size_t & line, const size_t & c
 }
 
 bool
-Solver::check_line_1st_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+Solver::check_line_1st_case(const Raw_grid & grid, const size_t line, const size_t column, const size_t row_of_1st_number) const
 {
     //qDebug() << "In LINE Case 1";
 
@@ -109,7 +205,7 @@ Solver::check_line_1st_case(const Raw_grid & grid, const size_t & line, const si
 }
 
 bool
-Solver::check_line_2nd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+Solver::check_line_2nd_case(const Raw_grid & grid, const size_t line, const size_t column, const size_t row_of_1st_number) const
 {
     // qDebug() << "In LINE Case 2";
 
@@ -132,7 +228,7 @@ Solver::check_line_2nd_case(const Raw_grid & grid, const size_t & line, const si
 }
 
 bool
-Solver::check_line_3rd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+Solver::check_line_3rd_case(const Raw_grid & grid, const size_t line, const size_t column, const size_t row_of_1st_number) const
 {
     //qDebug() << "In LINE Case 3" << std::endl;
 
@@ -155,7 +251,7 @@ Solver::check_line_3rd_case(const Raw_grid & grid, const size_t & line, const si
 }
 
 int
-Solver::check_number_in_line(const Raw_grid & grid, const size_t & line, const int number) const
+Solver::check_number_in_line(const Raw_grid & grid, const size_t line, const int number) const
 {
     for (size_t column_check = 0; column_check < 9; ++column_check)
     {
@@ -166,7 +262,7 @@ Solver::check_number_in_line(const Raw_grid & grid, const size_t & line, const i
 }
 
 int
-Solver::check_full_rows_in_line(const Raw_grid & grid, const size_t & line, const int row_of_found_number, const int number_to_check) const
+Solver::check_full_rows_in_line(const Raw_grid & grid, const size_t line, const int row_of_found_number, const int number_to_check) const
 {
     int numbers_in_row = 0;
 
@@ -354,7 +450,7 @@ Solver::try_to_fill_number_in_3rd_row_of_line(const Raw_grid & grid, const size_
 
 
 bool
-Solver::check_columns(const Raw_grid & grid, const size_t & line, const size_t & column) const
+Solver::check_columns(const Raw_grid & grid, const size_t line, const size_t column) const
 {
     const size_t COLUMN = (column + 1) % 3;
     int row_of_1st_number = line / 3 + 1;
@@ -381,7 +477,7 @@ Solver::check_columns(const Raw_grid & grid, const size_t & line, const size_t &
 }
 
 bool
-Solver::check_column_1st_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+Solver::check_column_1st_case(const Raw_grid & grid, const size_t line, const size_t column, const size_t row_of_1st_number) const
 {
     //qDebug() << "In COLUMN Case 1";
 
@@ -405,7 +501,7 @@ Solver::check_column_1st_case(const Raw_grid & grid, const size_t & line, const 
 }
 
 bool
-Solver::check_column_2nd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+Solver::check_column_2nd_case(const Raw_grid & grid, const size_t line, const size_t column, const size_t row_of_1st_number) const
 {
     //qDebug() << "In COLUMN Case 2";
 
@@ -428,7 +524,7 @@ Solver::check_column_2nd_case(const Raw_grid & grid, const size_t & line, const 
 }
 
 bool
-Solver::check_column_3rd_case(const Raw_grid & grid, const size_t & line, const size_t & column, const size_t & row_of_1st_number) const
+Solver::check_column_3rd_case(const Raw_grid & grid, const size_t line, const size_t column, const size_t row_of_1st_number) const
 {
     //qDebug() << "In COLUMN Case 3";
 
@@ -451,7 +547,7 @@ Solver::check_column_3rd_case(const Raw_grid & grid, const size_t & line, const 
 }
 
 int
-Solver::check_number_in_column(const Raw_grid & grid, const size_t & column, const int number) const
+Solver::check_number_in_column(const Raw_grid & grid, const size_t column, const int number) const
 {
     for (size_t line_check = 0; line_check < 9; ++line_check)
     {
@@ -462,7 +558,7 @@ Solver::check_number_in_column(const Raw_grid & grid, const size_t & column, con
 }
 
 int
-Solver::check_full_rows_in_columns(const Raw_grid & grid, const size_t & column, const int row_of_found_number, const int number_to_check) const
+Solver::check_full_rows_in_columns(const Raw_grid & grid, const size_t column, const int row_of_found_number, const int number_to_check) const
 {
     int numbers_in_row = 0;
 

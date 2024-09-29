@@ -286,3 +286,8 @@ void MyWindow::on_pushButton_Hint_clicked()
     cell->setBackground(QColor("light green"));
 }
 
+void MyWindow::on_pushButton_Solve_clicked()
+{
+    m_solver->solve(m_grid);
+}
+
