@@ -55,7 +55,7 @@ MyWindow::Populate_TableWidget()
 }
 
 void
-    MyWindow::Set_CrossCells_color(const QColor color)
+MyWindow::Set_CrossCells_color(const QColor color)
 {
     int row = m_selected_cell->row();
     int column = m_selected_cell->column();
@@ -77,15 +77,36 @@ void
 }
 
 void
+MyWindow::Set_SquareCells_color(const QColor color)
+{
+    int row = m_selected_cell->row() / 3;
+    int column = m_selected_cell->column() / 3;
+
+    for (int row_check = row * 3; row_check < row * 3 + 3; ++row_check)
+    {
+        for (int column_check = column * 3 ; column_check < column * 3 + 3 ; ++column_check)
+        {
+            QTableWidgetItem * cell = m_ui->tableWidget->item(row_check, column_check);
+
+            if (cell->flags() & Qt::ItemIsSelectable)
+                cell->setBackground(QColor(color));
+        }
+    }
+
+}
+
+void
 MyWindow::UnHighlight_cells()
 {
     Set_CrossCells_color(QColor("white"));
+    Set_SquareCells_color(QColor("white"));
 }
 
 void
 MyWindow::Highlight_cells()
 {
     Set_CrossCells_color(QColor("light blue"));
+    Set_SquareCells_color(QColor("light blue"));
     m_selected_cell->setBackground(QColor("blue"));
 }
 

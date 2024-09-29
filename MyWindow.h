@@ -24,6 +24,7 @@ public:
 private:
     void Populate_TableWidget();
     void Set_CrossCells_color(const QColor color);
+    void Set_SquareCells_color(const QColor color);
     void UnHighlight_cells();
     void Highlight_cells();
 
