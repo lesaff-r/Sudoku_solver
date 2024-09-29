@@ -9,6 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_PREFIX_PATH "D:/Programmes/Qt/6.7.1/mingw_64")
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
@@ -42,6 +44,10 @@ else()
             ${PROJECT_SOURCES}
         )
     endif()
+endif()
+
+if (MSVC)
+    target_compile_options(Sudoku_solver PUBLIC "/Zc:__cplusplus")
 endif()
 
 target_link_libraries(Sudoku_solver PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
