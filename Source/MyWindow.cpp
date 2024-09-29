@@ -1,5 +1,5 @@
 #include "MyWindow.h"
-#include "./ui_MyWindow.h"
+#include "ui_MyWindow.h"
 
 #include <QTimer>
 

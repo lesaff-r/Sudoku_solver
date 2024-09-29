@@ -15,18 +15,24 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        MyWindow.cpp
-        MyWindow.h
-        MyWindow.ui
+        Source/main.cpp
+        Source/MyWindow.ui
+        Source/MyWindow.cpp
+        Source/grid.cpp
+        Source/solver.cpp
+)
+
+set(PROJECT_HEADERS
+        Include/MyWindow.h
+        Include/grid.h
+        Include/solver.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Sudoku_solver
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        grid.h grid.cpp
-        solver.h solver.cpp
+        ${PROJECT_HEADERS}
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Sudoku_solver APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -45,6 +51,8 @@ else()
         )
     endif()
 endif()
+
+target_include_directories(Sudoku_solver PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Include)
 
 if (MSVC)
     target_compile_options(Sudoku_solver PUBLIC "/Zc:__cplusplus")
